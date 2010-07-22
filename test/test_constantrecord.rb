@@ -1,4 +1,4 @@
-require 'helper'
+require File.expand_path 'helper', File.dirname(__FILE__)
 
 class SimpleClass < ConstantRecord::Base
   data 'Lithuania', 'Latvia', 'Estonia'
@@ -37,6 +37,15 @@ end
 class BadColumnNames < ConstantRecord::Base
 #  columns :instance_method, :class_variable
 #  data ['foo', 'bar']
+end
+
+class WithConstants < ConstantRecord::Base
+  self.create_constants = true
+  columns :name, :value
+  data ['john',   1],
+       ['paul',   2],
+       ['george', 3],
+       ['ringo',  4]
 end
 
 class TestConstantRecord < Test::Unit::TestCase
@@ -136,5 +145,14 @@ class TestConstantRecord < Test::Unit::TestCase
     warnings_count = ConstantRecord::Base.logger.warn_count
     BadColumnNames.columns :instance_method, :class_variable    #  must log 2 warnings
     assert_equal ConstantRecord::Base.logger.warn_count - warnings_count, 2
+  end
+  
+  def test_constant_creation
+    assert_equal 1, WithConstants::JOHN
+    assert_equal 2, WithConstants::PAUL
+    assert_equal 3, WithConstants::GEORGE
+    assert_equal 4, WithConstants::RINGO
+    assert_raise (NameError) { WithConstants::NICK }
+    assert_raise (NameError) { ForValidation::JOHN }
   end
 end
