@@ -4,6 +4,12 @@ class SimpleClass < ConstantRecord::Base
   data 'Lithuania', 'Latvia', 'Estonia'
 end
 
+class SimpleHashyClass < ConstantRecord::Base
+  data({:name => 'Lithuania'},
+       {:name => 'Latvia'},
+       {:name => 'Estonia'})
+end
+
 class SimpleClass2 < ConstantRecord::Base
   columns :album
   data 'Sgt. Pepper', 'Magical Mystery Tour', 'Abbey Road'
@@ -16,6 +22,15 @@ class MultiColumnClass < ConstantRecord::Base
        ['CAD', 'Canadian Dollar'],
        ['GBP', 'British Pound sterling'],
        ['CHF', 'Swiss franc']
+end
+
+class HashyMultiColumnClass < ConstantRecord::Base
+  columns :short, :description
+  data({:short => 'EUR', :description => 'Euro'},
+       {:short => 'USD', :description => 'US Dollar'},
+       {:short => 'CAD', :description => 'Canadian Dollar'},
+       {:short => 'GBP', :description => 'British Pound sterling'},
+       {:short => 'CHF', :description => 'Swiss franc'})
 end
 
 # A table/class that makes no sense, but has integers and booleans
@@ -69,6 +84,15 @@ class TestConstantRecord < Test::Unit::TestCase
     assert_equal 'Estonia', SimpleClass.first(:conditions => {:name => "Estonia"}).name
     assert_equal 'Estonia', SimpleClass.find(:last).name
     assert_equal 'Estonia', SimpleClass.last.name
+  end
+
+  def test_hashy_class_parsing
+    assert_equal 'Lithuania', SimpleHashyClass.find(:first).name
+    assert_equal 'USD', HashyMultiColumnClass.find_by_short('USD').short
+    assert_equal 'US Dollar', HashyMultiColumnClass.find_by_short('USD').description
+    all = HashyMultiColumnClass.find(:all, :conditions => {})
+    chf = all[4]
+    assert 5 == chf.id && chf.short && 'Swiss franc' == chf.description
   end
 
   def test_simple_finder_with_custom_column_name

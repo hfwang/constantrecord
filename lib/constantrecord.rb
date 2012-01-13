@@ -56,7 +56,18 @@ module ConstantRecord  #:nodoc:
 
     # Set the data. Arguments must be an Array.
     def self.data(*args)
-      @data = args.collect{|arg| arg.kind_of?(Array) ? arg : [arg]}
+      @data = args.collect{ |arg|
+        if arg.kind_of?(Array)
+          next arg
+        elsif arg.kind_of?(Hash)
+          cols = get_columns
+          next cols.keys.sort_by { |name| cols[name] }.collect { |name|
+            arg[name]
+          }
+        else
+          next [arg]
+        end
+      }
       if create_constants
         @data.each do |datum|
           const_set datum.first.upcase, datum.last
