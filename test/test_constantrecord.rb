@@ -1,4 +1,4 @@
-require 'helper'
+require File.expand_path 'helper', File.dirname(__FILE__)
 
 class SimpleClass < ConstantRecord::Base
   data 'Lithuania', 'Latvia', 'Estonia'
@@ -37,6 +37,15 @@ end
 class BadColumnNames < ConstantRecord::Base
 #  columns :instance_method, :class_variable
 #  data ['foo', 'bar']
+end
+
+class WithConstants < ConstantRecord::Base
+  self.create_constants = true
+  columns :name, :value
+  data ['john',   1],
+       ['paul',   2],
+       ['george', 3],
+       ['ringo',  4]
 end
 
 class TestConstantRecord < Test::Unit::TestCase
@@ -92,7 +101,7 @@ class TestConstantRecord < Test::Unit::TestCase
     assert_equal [ 'EUR', 'USD', 'CAD', 'GBP', 'CHF' ], MultiColumnClass.find(:all).collect{|o| o.short}
     assert_equal [ 1, 2, 3, 4, 5 ], MultiColumnClass.find(:all).collect{|o| o.id}
     assert_equal 5, MultiColumnClass.count
-    
+
     assert_equal 'Euro', MultiColumnClass['EUR']
     assert_equal 'US Dollar', MultiColumnClass['USD']
     assert_raise (ConstantRecord::ConstantNotFound) { MultiColumnClass['BadValue'] }
@@ -152,4 +161,12 @@ class TestConstantRecord < Test::Unit::TestCase
     # TODO!
   end
 
+  def test_constant_creation
+    assert_equal 1, WithConstants::JOHN
+    assert_equal 2, WithConstants::PAUL
+    assert_equal 3, WithConstants::GEORGE
+    assert_equal 4, WithConstants::RINGO
+    assert_raise (NameError) { WithConstants::NICK }
+    assert_raise (NameError) { ForValidation::JOHN }
+  end
 end

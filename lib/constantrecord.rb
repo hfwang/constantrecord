@@ -28,6 +28,9 @@ module ConstantRecord  #:nodoc:
   #   <%= f.select :currency_id, Currency.options_for_select %>
   #
   class Base
+    class << self
+      attr_accessor :create_constants
+    end
 
   private
     attr_writer :id, :name  #:nodoc:
@@ -54,6 +57,11 @@ module ConstantRecord  #:nodoc:
     # Set the data. Arguments must be an Array.
     def self.data(*args)
       @data = args.collect{|arg| arg.kind_of?(Array) ? arg : [arg]}
+      if create_constants
+        @data.each do |datum|
+          const_set datum.first.upcase, datum.last
+        end
+      end
     end
 
     # Constructor. Call with the <tt>id</tt> plus a list of the values.
@@ -162,7 +170,7 @@ module ConstantRecord  #:nodoc:
     def empty?  #:nodoc:
       false
     end
-    
+
     # A ConstantRecord will never be destroyed
     def destroyed? #:nodoc:
       false
