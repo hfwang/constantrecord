@@ -7,7 +7,7 @@ end
 class SimpleHashyClass < ConstantRecord::Base
   data({:name => 'Lithuania'},
        {:name => 'Latvia'},
-       {:name => 'Estonia'})
+       {'name' => 'Estonia'})
 end
 
 class SimpleClass2 < ConstantRecord::Base
@@ -88,6 +88,7 @@ class TestConstantRecord < Test::Unit::TestCase
 
   def test_hashy_class_parsing
     assert_equal 'Lithuania', SimpleHashyClass.find(:first).name
+    assert_equal 'Estonia', SimpleHashyClass.find_by_name('Estonia').name
     assert_equal 'USD', HashyMultiColumnClass.find_by_short('USD').short
     assert_equal 'US Dollar', HashyMultiColumnClass.find_by_short('USD').description
     all = HashyMultiColumnClass.find(:all, :conditions => {})

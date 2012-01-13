@@ -62,7 +62,7 @@ module ConstantRecord  #:nodoc:
         elsif arg.kind_of?(Hash)
           cols = get_columns
           next cols.keys.sort_by { |name| cols[name] }.collect { |name|
-            arg[name]
+            arg[name] || arg[name.to_s]
           }
         else
           next [arg]
